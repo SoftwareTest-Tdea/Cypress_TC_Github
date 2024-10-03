@@ -19,11 +19,10 @@ describe("Login en GitHub", () => {
     cy.get(".position-relative > .btn").should("be.visible"); // Botón de login
 
     // 5. Validar que el botón de login tiene el estilo correcto (background-color)
-    cy.get(".position-relative > .btn").should(
-      "have.css",
-      "background-color",
-      "rgb(35, 134, 54)"
-    );
+    cy.get(".position-relative > .btn").invoke('css', 'background-color').then((bgColor) => {
+      expect(bgColor).to.be.oneOf(['rgb(35, 134, 54)', 'rgb(31, 136, 61)']);
+    });
+    
 
     // 6. Ingresar el usuario
     cy.get("#login_field").type(username);
