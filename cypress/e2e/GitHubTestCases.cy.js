@@ -1,3 +1,4 @@
+
 describe("Login en GitHub", () => {
   const username = "softwaretestingrepositorio@gmail.com";
   const password = "softwaretest23.";
@@ -22,7 +23,7 @@ describe("Login en GitHub", () => {
     cy.get(".position-relative > .btn").invoke('css', 'background-color').then((bgColor) => {
       expect(bgColor).to.be.oneOf(['rgb(35, 134, 54)', 'rgb(31, 136, 61)']);
     });
-    
+
 
     // 6. Ingresar el usuario
     cy.get("#login_field").type(username);
@@ -60,13 +61,14 @@ describe("Login en GitHub", () => {
         expect(id).to.equal("repository[name]"); // Compara con el valor esperado del id
       });
   });
-  
+
 });
 
-describe("Buscar repositorio en GitHub",() => {
-  const username = "monsalveemerson21@gmail.com";
-  const password = "emerson-atehortua";
-  
+describe("Buscar repositorio en GitHub", () => {
+  const username = "softwaretestingrepositorio@gmail.com";
+  const password = "softwaretest23.";
+  const usr = "SoftwareTest-Tdea";
+
   it("Se debe inciar sesión y buscar un repositorio en especifico", () => {
 
     //1. Ingresar a la página web de gitHub
@@ -81,7 +83,7 @@ describe("Buscar repositorio en GitHub",() => {
     cy.get(".position-relative > .btn").click();
 
     //4. Verificar que se inició sesión correctamente y estamos en la dashboard
-    cy.get('.AppHeader-context-item').should("contain","Dashboard");
+    cy.get('.AppHeader-context-item').should("contain", "Dashboard");
 
     //5. Verificar que el botón de búsqueda esté visible
     cy.get('.search-input-container > .AppHeader-button').should("be.visible");
@@ -100,13 +102,13 @@ describe("Buscar repositorio en GitHub",() => {
 
     //10. Verificar la url para confirmar que nos encontramos en la página de resultados de búsqueda según los criterios
     //de búsqueda enviados
-    cy.url().should("eq","https://github.com/search?q=SoftwareTest-Tdea%2FCypress_TC_Github&type=repositories");
+    cy.url().should("eq", "https://github.com/search?q=SoftwareTest-Tdea%2FCypress_TC_Github&type=repositories");
 
     //11. Verificar que el contador de busquedas esté visible
     cy.get('.jJRiHe').should("be.visible");
 
     //12. Confirmar que al menos se haya un resultado para los criterios de búsqueda ingresados
-    cy.get('.jJRiHe').should("contain","1");
+    cy.get('.jJRiHe').should("contain", "1");
 
     //13. Vefiricar que el repositorio encontrado esté visible
     cy.get('.iwUbcA').should("be.visible");
@@ -166,3 +168,98 @@ describe("Buscar repositorio en GitHub",() => {
     });
   });
 });
+
+describe("Edición del perfil de Usuario en GitHub", () => {
+  const username = "softwaretestingrepositorio@gmail.com";
+  const password = "softwaretest23.";
+  const usr = "SoftwareTest-Tdea";
+
+  it('Se debe iniciar sesión y verificar que usuario pueda editar su perfil correctamente', () => {
+
+    //1. Ingresar a la página web de GitHub
+    cy.visit('https://github.com')
+    cy.url().should('eq', 'https://github.com/')
+
+    //2. Click boton iniciar sesión
+    cy.get('.text-right > .HeaderMenu-link').click()
+    cy.url().should('eq', 'https://github.com/login')
+
+    //3. Ingresar los datos para el inicio de sesión
+    cy.get('#login_field').should('be.visible').type(username)
+    cy.get('#password').should('be.visible').type(password)
+    cy.get('.position-relative > .btn').click()
+
+    //4. Validar el login exitoso
+    cy.title().should('eq', 'GitHub');
+
+    //5. Ir al menú del perfil y hacer click en 'Your profile'
+    cy.get('.Button-label > .avatar').click()
+    cy.get('.Dialog__Body-sc-uaxjsn-5').should('be.visible')
+    cy.get(`a[href="/${usr}"]`).should('be.visible')
+    cy.get(`a[href="/${usr}"]`).click()
+
+    //6. Verificar que el boton "Edit profile" está visible y hacer click
+    cy.get('.js-profile-editable-edit-button').should('be.visible')
+    cy.get('.js-profile-editable-edit-button').click()
+
+    //7. Datos del perfil
+    //7.1. Cambiar nombre de usuario
+    cy.get('#user_profile_name').should('be.visible').clear().type('Software Testing TC03')
+
+    //7.2. Cambiar la biografia
+    cy.get('#user_profile_bio').should('be.visible').clear().type('Biografia actualizada para el TC03')
+
+    //7.3. Cambiar el pronombre
+    cy.get('#user_profile_pronouns').should('be.visible').select('Custom')
+    cy.get('.js-profile-editable-pronouns-custom').clear().type('Tanque de guerra')
+
+    //7.4. Cambiar la compañia
+    cy.get(':nth-child(6) > .ml-2').should('be.visible').clear().type('Movistar')
+
+    //7.5. Cambiar la locación
+    cy.get(':nth-child(7) > .ml-2').should('be.visible').clear().type('Cra. 50 #52-26')
+
+    //8. Validar los estilos del botón "Save"
+    cy.get(':nth-child(12) > .Button--primary').should('have.css', 'background-color', 'rgb(35, 134, 54)')
+    cy.get(':nth-child(12) > .Button--primary').should('have.css', 'font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"')
+
+    //9. Darle click al boton "Save" para guardar los cambios
+    cy.get(':nth-child(12) > .Button--primary').click()
+
+
+    //10. Validar que los campos se han actualizado correctamente
+
+    //10.1. Validar que la pestaña "Overview" está seleccionada
+    cy.get('#overview-tab').should('have.class', 'selected');
+
+    //10.2. Validar que el nombre de usuario se ha actualizado
+    cy.get('span.p-name.vcard-fullname').invoke('text').then((text) => {
+      expect(text.trim()).to.eq('Software Testing TC03');
+    });
+
+    //10.3. Validar que la biografía se ha actualizado
+    cy.get('.user-profile-bio').invoke('text').then((text) => {
+      expect(text.trim()).to.eq('Biografia actualizada para el TC03');
+    });
+
+    //10.4. Validar que el pronombre personalizado se ha actualizado
+    cy.get('.js-profile-editable-pronouns-custom').should('have.value', 'Tanque de guerra');
+
+    //10.5. Validar que la compañía se ha actualizado
+    cy.get('.p-org').invoke('text').then((text) => {
+      expect(text.trim()).to.eq('Movistar');
+    });
+
+    //10.6. Validar que la ubicación se ha actualizado
+    cy.get('.p-label').invoke('text').then((text) => {
+      expect(text.trim()).to.eq('Cra. 50 #52-26');
+    });
+
+    //11. Validar la URL es la correcta para el perfil
+    cy.url().should('include', `/${usr}`);
+
+    //12. Validar la imagen del perfil sea presente
+    cy.get('#upload-avatar-link > .avatar').should('be.visible')
+
+  });
+})
